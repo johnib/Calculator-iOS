@@ -19,18 +19,21 @@ class ViewController: UIViewController {
         }
         
         set {
-            userStartedTyping = false
+            self.userStartedTyping = false
+            self.userAppendedDot = false
             
             if newValue == 0 {
-                display.text = "0"
+                self.display.text = "0"
             } else {
-                display.text = "\(newValue)"
+                self.display.text = "\(newValue)"
             }
         }
     }
     
     var userStartedTyping = false
+    var userAppendedDot = false
     
+    //  The calculator model
     var brain = CalcBrain()
     
     //  
@@ -40,40 +43,55 @@ class ViewController: UIViewController {
         let digit = sender.currentTitle!
         
         if userStartedTyping {
-            display.text = display.text! + digit
+            self.display.text = self.display.text! + digit
         } else {
-            display.text = digit
-            userStartedTyping = true
+            self.display.text = digit
+            self.userStartedTyping = true
+        }
+    }
+    
+    @IBAction func appendDot(sender: UIButton) {
+        if !userAppendedDot {
+            self.userAppendedDot = true
+            
+            if userStartedTyping {
+                self.display.text = self.display.text! + "."
+            } else {
+                self.userStartedTyping = true
+                self.display.text = "0."
+            }
         }
     }
     
     @IBAction func enter() {
-        userStartedTyping = false
+        self.userStartedTyping = false
         
         if let result = self.brain.pushOperand(displayValue) {
-            displayValue = result
+            self.displayValue = result
         } else {
-            displayValue = 0
+            self.displayValue = 0
         }
     }
     
     @IBAction func performOperation(sender: UIButton) {
-        if userStartedTyping {
-            enter()
+        if self.userStartedTyping {
+            self.enter()
         }
         
         if let operation = sender.currentTitle {
             if let result = self.brain.performOperation(operation) {
-                displayValue = result
+                self.displayValue = result
             } else {
-                displayValue = 0
+                self.displayValue = 0
             }
         }
     }
     
     @IBAction func reset() {
         self.brain.reset()
-        displayValue = 0
+        self.userStartedTyping = false
+        self.userAppendedDot = false
+        self.displayValue = 0
     }
     
 }

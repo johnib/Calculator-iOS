@@ -10,6 +10,7 @@ import Foundation
 
 class CalcBrain {
     
+    //  An Op can be any operand (a number) or an operator (+, √, sin, etc..)
     private enum Op: Printable {
         case Operand(Double)
         case UnaryOperation(String, Double -> Double)
@@ -45,44 +46,49 @@ class CalcBrain {
         learnOp(Op.BinaryOperation("+", +))
         learnOp(Op.BinaryOperation("−") { $1 - $0 })
         learnOp(Op.UnaryOperation("√", sqrt))
+        learnOp(Op.UnaryOperation("sin", sin))
+        learnOp(Op.UnaryOperation("cos", cos))
     }
     
-    private func evaluate(var stack: Array<Op>) -> (result: Double?, remaining: [Op]) {
-        if !stack.isEmpty {
-            let op = stack.removeLast()
-            switch op {
-            case .Operand(let operand):
-                return (operand, stack)
-                
-            case .UnaryOperation(_, let operation):
-                let evalResult = evaluate(stack)
-                if let operand = evalResult.result {
-                    return (operation(operand), evalResult.remaining)
-                }
-                
-            case .BinaryOperation(_, let operation):
-                let evalResult1 = evaluate(stack)
-                if let op1 = evalResult1.result {
-                    let evalResult2 = evaluate(evalResult1.remaining)
-                    if let op2 = evalResult2.result {
-                        return (operation(op1, op2), evalResult2.remaining)
+    private func evaluate(var stack: Array<Op>) -> (result: Double?,
+        remaining: [Op]) {
+            
+            if !stack.isEmpty {
+                let op = stack.removeLast()
+                switch op {
+                case .Operand(let operand):
+                    return (operand, stack)
+                    
+                case .UnaryOperation(_, let operation):
+                    let evalResult = evaluate(stack)
+                    if let operand = evalResult.result {
+                        return (operation(operand), evalResult.remaining)
+                    }
+                    
+                case .BinaryOperation(_, let operation):
+                    let evalResult1 = evaluate(stack)
+                    if let op1 = evalResult1.result {
+                        let evalResult2 = evaluate(evalResult1.remaining)
+                        if let op2 = evalResult2.result {
+                            return (operation(op1, op2), evalResult2.remaining)
+                        }
                     }
                 }
             }
-        }
-        
-        return (nil, stack)
+            
+            return (nil, stack)
     }
     
     //
     //  Evaluates the opStack
+    //
     private func evaluate() -> Double? {
         let (result, remaining) = evaluate(opStack)
         println("\(opStack) = \(result) with remaining \(remaining)")
         
         return result
     }
-
+    
     //
     //  Adds the specified operand to the opStack.
     //
@@ -106,6 +112,9 @@ class CalcBrain {
         return result
     }
     
+    //
+    //  Resets the ops' stack
+    //
     func reset() {
         opStack = [Op]()
     }
