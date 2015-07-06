@@ -13,6 +13,9 @@ class ViewController: UIViewController {
     //  Result display label
     @IBOutlet weak var display: UILabel!
     
+    //  The history label
+    @IBOutlet weak var history: UILabel!
+    
     var displayValue: Double {
         get {
             return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
@@ -20,7 +23,6 @@ class ViewController: UIViewController {
         
         set {
             self.userStartedTyping = false
-            self.userAppendedDot = false
             
             if newValue == 0 {
                 self.display.text = "0"
@@ -30,7 +32,7 @@ class ViewController: UIViewController {
         }
     }
     
-    var userStartedTyping = false
+    var userStartedTyping = false { didSet { self.userAppendedDot = false } }
     var userAppendedDot = false
     
     //  The calculator model
@@ -40,7 +42,7 @@ class ViewController: UIViewController {
     //  This method is called when pressing on a button.
     //
     @IBAction func appendDigit(sender: UIButton) {
-        let digit = sender.currentTitle!
+        let digit = self.getDigitFrom(sender)
         
         if userStartedTyping {
             self.display.text = self.display.text! + digit
@@ -48,6 +50,22 @@ class ViewController: UIViewController {
             self.display.text = digit
             self.userStartedTyping = true
         }
+    }
+    
+    //
+    //  This private method evaluates the Double value of the given number
+    //  button.
+    //
+    private func getDigitFrom(sender: UIButton) -> String {
+        var digit: String
+        
+        switch sender.currentTitle! {
+        case "∏": digit = "\(M_PI)"
+        case "e": digit = "\(M_E)"
+        default: digit = sender.currentTitle!
+        }
+
+        return digit
     }
     
     @IBAction func appendDot(sender: UIButton) {
@@ -87,10 +105,19 @@ class ViewController: UIViewController {
         }
     }
     
+    //
+    //  This method changes the sign of the current displayed nubmer.
+    //
+    @IBAction func changeSign(sender: UIButton) {
+        let currentDisplayedNumber = self.displayValue
+        
+        self.displayValue = -currentDisplayedNumber
+    }
+    
     @IBAction func reset() {
         self.brain.reset()
+        self.history.text = ""
         self.userStartedTyping = false
-        self.userAppendedDot = false
         self.displayValue = 0
     }
     

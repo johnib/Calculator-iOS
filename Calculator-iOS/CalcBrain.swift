@@ -48,6 +48,7 @@ class CalcBrain {
         learnOp(Op.UnaryOperation("√", sqrt))
         learnOp(Op.UnaryOperation("sin", sin))
         learnOp(Op.UnaryOperation("cos", cos))
+        learnOp(Op.UnaryOperation("tan", tan))
     }
     
     private func evaluate(var stack: Array<Op>) -> (result: Double?,
@@ -90,7 +91,8 @@ class CalcBrain {
     }
     
     //
-    //  Adds the specified operand to the opStack.
+    //  Adds the specified operand to the opStack and returns the evaluated
+    //  stack.
     //
     func pushOperand(operand: Double) -> Double? {
         opStack.append(Op.Operand(operand))
